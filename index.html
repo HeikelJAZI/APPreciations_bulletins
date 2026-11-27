@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Appréciations de fin de trimestre</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="entete">
+    <div class="entete-titre">
+      <h1>Appréciations de fin de trimestre</h1>
+      <p>Collez les moyennes, précisez quelques critères, relisez puis copiez les appréciations dans votre logiciel de vie scolaire.</p>
+    </div>
+    <form class="reglages" id="form-reglages" autocomplete="off">
+      <div class="champ">
+        <label for="reg-classe">Classe</label>
+        <input id="reg-classe" type="text" placeholder="ex. 4e B">
+      </div>
+      <div class="champ">
+        <label for="reg-matiere">Matière</label>
+        <input id="reg-matiere" type="text" placeholder="ex. Histoire-géographie">
+      </div>
+      <div class="champ">
+        <label for="reg-trimestre">Trimestre</label>
+        <select id="reg-trimestre">
+          <option value="1">1er trimestre</option>
+          <option value="2">2e trimestre</option>
+          <option value="3">3e trimestre</option>
+        </select>
+      </div>
+      <div class="champ champ-court">
+        <label for="reg-longueur">Caractères max.</label>
+        <input id="reg-longueur" type="number" min="80" max="1000" step="10">
+      </div>
+    </form>
+  </header>
+
+  <nav class="onglets" role="tablist" aria-label="Sections">
+    <button type="button" role="tab" id="tab-eleves" aria-controls="onglet-eleves" aria-selected="true" data-onglet="eleves">Élèves <span class="badge" id="badge-eleves">0</span></button>
+    <button type="button" role="tab" id="tab-classe" aria-controls="onglet-classe" aria-selected="false" data-onglet="classe">Appréciation de la classe</button>
+    <button type="button" role="tab" id="tab-regles" aria-controls="onglet-regles" aria-selected="false" data-onglet="regles">Phrases et règles</button>
+  </nav>
+
+  <main>
+    <!-- ===================== ÉLÈVES ===================== -->
+    <section id="onglet-eleves" role="tabpanel" aria-labelledby="tab-eleves" class="panneau">
+      <div id="bandeau-exemple" class="bandeau" hidden>
+        <strong>Données d'exemple.</strong> Ces élèves sont fictifs. Importez vos notes ci-dessous pour commencer.
+      </div>
+
+      <details id="bloc-import" class="bloc-import">
+        <summary>Importer les notes</summary>
+        <div class="import-contenu">
+          <div class="import-aide">
+            <p>Une ligne par élève : <strong>nom</strong>, <strong>moyenne</strong>, et si vous l'avez, <strong>moyenne du trimestre précédent</strong>.</p>
+            <p>Copiez les colonnes depuis Pronote ou un tableur et collez-les ici. Virgule ou point pour les décimales. « Abs » ou une case vide = pas de moyenne.</p>
+<pre class="exemple-format">Dupont Marie	12,5	11
+Martin Léo	8	9,5
+Bernard Zoé	Abs</pre>
+          </div>
+          <div class="import-saisie">
+            <label for="import-texte" class="sr-only">Notes à importer</label>
+            <textarea id="import-texte" rows="8" placeholder="Collez ici les noms et les moyennes…"></textarea>
+            <div class="import-actions">
+              <button type="button" class="btn btn-principal" id="btn-importer">Importer</button>
+              <label class="btn btn-secondaire" for="import-fichier">Choisir un fichier CSV</label>
+              <input type="file" id="import-fichier" accept=".csv,.txt,text/csv,text/plain" class="sr-only">
+              <button type="button" class="btn btn-lien" id="btn-exemple">Recharger l'exemple</button>
+            </div>
+            <p id="import-message" class="message" role="status"></p>
+          </div>
+        </div>
+      </details>
+
+      <div class="barre-outils">
+        <p id="compteur" class="compteur-global"></p>
+        <div class="barre-actions">
+          <button type="button" class="btn btn-secondaire" id="btn-regenerer" title="Les appréciations modifiées à la main sont conservées">Régénérer</button>
+          <button type="button" class="btn btn-principal" id="btn-copier-tout">Copier toutes les appréciations</button>
+          <button type="button" class="btn btn-secondaire" id="btn-copier-noms" title="Deux colonnes séparées par une tabulation, à coller dans un tableur">Copier avec les noms</button>
+          <button type="button" class="btn btn-secondaire" id="btn-telecharger" title="Le fichier importé, avec une colonne « Appréciation » et une ligne pour l'appréciation de la classe">Télécharger le CSV</button>
+          <button type="button" class="btn btn-danger" id="btn-effacer">Effacer les élèves</button>
+        </div>
+      </div>
+
+      <div id="liste-eleves" class="liste"></div>
+    </section>
+
+    <!-- ===================== CLASSE ===================== -->
+    <section id="onglet-classe" role="tabpanel" aria-labelledby="tab-classe" class="panneau" hidden>
+      <div class="classe-grille">
+        <div class="classe-stats">
+          <h2>Bilan chiffré</h2>
+          <div id="stats" class="tuiles"></div>
+          <h3>Répartition des moyennes</h3>
+          <div id="repartition" class="repartition"></div>
+        </div>
+        <div class="classe-texte carte">
+          <h2>Appréciation générale</h2>
+          <div class="champ">
+            <label for="classe-climat">Climat de classe</label>
+            <select id="classe-climat"></select>
+          </div>
+          <label for="classe-texte" class="sr-only">Appréciation générale de la classe</label>
+          <textarea id="classe-texte" rows="7"></textarea>
+          <div class="carte-pied">
+            <span id="classe-compteur" class="compteur"></span>
+            <span id="classe-modif" class="pill-modif" hidden>Modifiée à la main</span>
+            <span class="espace"></span>
+            <button type="button" class="btn btn-secondaire btn-petit" id="btn-classe-autre">Autre formulation</button>
+            <button type="button" class="btn btn-principal btn-petit" id="btn-classe-copier">Copier</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== RÈGLES ===================== -->
+    <section id="onglet-regles" role="tabpanel" aria-labelledby="tab-regles" class="panneau" hidden>
+      <div class="regles-intro">
+        <h2>Phrases et règles</h2>
+        <p>Toutes les phrases, les tranches de moyenne et les critères sont décrits ci-dessous. Modifiez-les puis cliquez sur « Appliquer » : les changements sont enregistrés dans ce navigateur.</p>
+        <p>Pour une modification durable, partagée avec vos collègues, reportez-les dans le fichier <code>js/regles.js</code> : chaque réglage y est commenté.</p>
+      </div>
+      <label for="regles-json" class="sr-only">Règles au format JSON</label>
+      <textarea id="regles-json" class="code" rows="24" spellcheck="false"></textarea>
+      <div class="import-actions">
+        <button type="button" class="btn btn-principal" id="btn-regles-appliquer">Appliquer</button>
+        <button type="button" class="btn btn-secondaire" id="btn-regles-copier">Copier les règles</button>
+        <button type="button" class="btn btn-danger" id="btn-regles-reinit">Revenir aux règles d'origine</button>
+      </div>
+      <p id="regles-message" class="message" role="status"></p>
+    </section>
+  </main>
+
+  <footer class="pied">
+    Les notes restent dans ce navigateur : rien n'est envoyé sur internet.
+  </footer>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <!-- Ordre de chargement : règles et données, puis outils, puis interface -->
+  <script src="js/regles.js"></script>
+  <script src="js/exemple.js"></script>
+  <script src="js/stockage.js"></script>
+  <script src="js/import.js"></script>
+  <script src="js/generateur.js"></script>
+  <script src="js/export.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
